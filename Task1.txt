@@ -1,0 +1,132 @@
+
+import json
+import datetime
+
+# Функция для сохранения заметок в файл
+def save_notes(notes):
+    with open('notes.json', 'w') as file:
+        json.dump(notes, file)
+
+# Функция для чтения заметок из файла
+def load_notes():
+    try:
+        with open('notes.json', 'r') as file:
+            loaded_notes = json.load(file)
+            for i, note in enumerate(loaded_notes):
+                if 'id' not in note:
+                    note['id'] = i + 1
+            return loaded_notes
+    except FileNotFoundError:
+        return []
+
+# Функция для добавления новой заметки
+def add_note():
+    global notes
+    title = input("Введите заголовок заметки: ")
+    message = input("Введите текст заметки: ")
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    note = {
+        'id': len(notes) + 1,
+        'title': title,
+        'message': message,
+        'timestamp': timestamp
+    }
+    notes.append(note)
+    save_notes(notes)
+    print("Заметка успешно сохранена.")
+
+# Функция для редактирования заметки
+def edit_note():
+    global notes
+    note_id = int(input("Введите ID заметки для редактирования: "))
+    for note in notes:
+        if note['id'] == note_id:
+            note['title'] = input("Введите новый заголовок заметки: ")
+            note['message'] = input("Введите новый текст заметки: ")
+            note['timestamp'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            save_notes(notes)
+            print("Заметка успешно отредактирована.")
+            return
+    print("Заметка с указанным ID не найдена.")
+
+# Функция для удаления заметки
+def delete_note():
+    global notes
+    note_id = int(input("Введите ID заметки для удаления: "))
+    for note in notes:
+        if note['id'] == note_id:
+            notes.remove(note)
+            save_notes(notes)
+            print("Заметка успешно удалена.")
+            return
+    print("Заметка с указанным ID не найдена.")
+
+# Функция для вывода списка заметок
+def list_notes():
+    if not notes:
+        print("Список заметок пуст.")
+    else:
+        for note in notes:
+            print(f"ID: {note['id']}")
+            print(f"Заголовок: {note['title']}")
+            print(f"Текст: {note.get('message', '')}")
+            print(f"Дата/время создания: {note['timestamp']}")
+            print()
+
+# Функция для фильтрации заметок по дате
+def filter_notes_by_date():
+    date = input("Введите дату для фильтрации (гггг-мм-дд): ")
+    filtered_notes = [note for note in notes if note['timestamp'].startswith(date)]
+    if not filtered_notes:
+        print("Заметки с указанной датой не найдены.")
+    else:
+        for note in filtered_notes:
+            print(f"ID: {note['id']}")
+            print(f"Заголовок: {note['title']}")
+            print(f"Текст: {note.get('message', '')}")
+            print(f"Дата/время создания: {note['timestamp']}")
+            print()
+
+# Функция для выбора заметки и вывода текста на экран
+def read_note():
+    global notes
+    note_id = int(input("Введите ID заметки для чтения: "))
+    for note in notes:
+        if note['id'] == note_id:
+            print("Заголовок: {}".format(note['title']))
+            print("Текст: {}".format(note.get('message', '')))
+            print("Дата/время создания: {}".format(note['timestamp']))
+            return
+    print("Заметка с указанным ID не найдена.")
+
+# Основной цикл приложения
+notes = load_notes()
+
+while True:
+    print("1. Добавить заметку")
+    print("2. Редактировать заметку")
+    print("3. Удалить заметку")
+    print("4. Вывести список заметок")
+    print("5. Фильтрация заметок по дате")
+    print("6. Чтение заметки")
+    print("7. Выход")
+
+    choice = input("Введите номер команды: ")
+
+    if choice == '1':
+        add_note()
+    elif choice == '2':
+        edit_note()
+    elif choice == '3':
+        delete_note()
+    elif choice == '4':
+        list_notes()
+    elif choice == '5':
+        filter_notes_by_date()
+    elif choice == '6':
+        read_note()
+    elif choice == '7':
+        break
+    else:
+        print("Некорректный ввод. Попробуйте ещё раз")
+print("Завершение программы.")
